@@ -3,12 +3,20 @@ import './header.scss'
 import logo from './dpLogo1.png'
 import { Link } from 'react-router-dom'
 import { auth } from '../../firebase/function'
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux'
+import { logOutUser } from '../../redux/user/user.action'
 
+const mapState = ({ user }) => ({
+	currentUser: user.currentUser,
+});
 
-const Header = (props) => {
-	const { currentUser } = props;
+const Header = () => {
+	const { currentUser } = useSelector(mapState);
+	const dispatch = useDispatch();
 
+	const handleLogout = () => {
+		dispatch(logOutUser());
+	}
 
     return (
 			<header className="header">
@@ -34,7 +42,7 @@ const Header = (props) => {
 									<Link to="/dashboard"> Dashboard</Link>
 								</li>
 								<li>
-									<span onClick={() => auth.signOut()}>LOGOUT</span>
+									<span onClick={handleLogout}>LOGOUT</span>
 								</li>
 							</ul>
 						) : (
@@ -56,8 +64,4 @@ const Header = (props) => {
 Header.defaultProps = {
 	currentUser: null
 }
-
-const mapStateToProps = ({user}) => ({
-	currentUser: user.currentUser
-})
-export default connect(mapStateToProps, null)(Header)
+export default Header;

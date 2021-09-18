@@ -1,40 +1,47 @@
-import React, { useState } from "react";
-import { signInWithGoogle, auth } from "../../firebase/function";
+import React, { useEffect, useState } from "react";
 import Button from "../forms/button/Button";
 import FormInput from "../forms/formInput/FormInput";
 import AuthWrapper from "../authWrapper/AuthWrapper";
 import "./signIn.scss";
 import { Link, useHistory } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { signInUser, signInWithGoogle } from "../../redux/user/user.action";
+
+const mapState = ({ user }) => ({
+	signInSuccess: user.signInSuccess
+})
 
 const SignIn = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [errors, setErrors] = useState([]);
 
+	const { signInSuccess } = useSelector(mapState);
+
 	const history = useHistory()
+	const dispatch = useDispatch();
+
+	useEffect(() => {
+		if (signInSuccess) {
+			resetForm();
+			history.push('/');
+			
+		}
+	}, [signInSuccess])
+
 	const resetForm = () => {
 		setEmail("");
 		setPassword("");
 	};
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-
-		try {
-			await auth
-				.signInWithEmailAndPassword(email, password)
-				.then(() => {
-					history.puah('/')
-				})
-				.catch((err) => {
-					const newError = [err.message];
-					setErrors(newError);
-				});
-
-			resetForm();
-		} catch (error) {
-			console.log(error);
-		}
+		dispatch(signInUser({ email, password }));
 	};
+
+	const handleGoogleSignIn = e => {
+		dispatch(signInWithGoogle());
+	}
+
 	const config = {
 		headline: "LOGIN",
 	};
@@ -65,14 +72,14 @@ const SignIn = () => {
 					/>
 					<Button type="submit">LOGIN</Button>
 				</form>
-					<div className="socialSign">
-						<div className="row">
-							<Button onClick={signInWithGoogle}>Sign In with Google</Button>
-						</div>
+				<div className="socialSign">
+					<div className="row">
+						<Button onClick={handleGoogleSignIn}>Sign In with Google</Button>
 					</div>
-					<p>
-						Forgot Password? <Link to="/recovery">Recover it</Link>
-					</p>
+				</div>
+				<p>
+					Forgot Password? <Link to="/recovery">Recover it</Link>
+				</p>
 			</div>
 		</AuthWrapper>
 	);

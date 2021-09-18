@@ -1,29 +1,45 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import FormInput from "../forms/formInput/FormInput";
 import Button from "../forms/button/Button";
 import "./createNewUser.scss";
-import { auth, handleUserProfile } from "../../firebase/function";
 import AuthWrapper from "../authWrapper/AuthWrapper";
 import { useHistory } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { createNewUser } from "../../redux/user/user.action";
 
+const mapState = ({ user }) => ({
+	signUpSuccess: user.signUpSuccess,
+	signUpError: user.signUpError,
+})
 const CreateNewUser = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [errors, setErrors] = useState([]);
 	const [displayName, setDisplayName] = useState("");
-	const [firstname, setFirstname] = useState("");
-	const [lastname, setLastname] = useState("");
 
-	const history = useHistory()
+	const {signUpError, signUpSuccess} = useSelector(mapState)
+	const history = useHistory();
+	const dispatch = useDispatch()
+
+	useEffect(() => {
+		if (signUpSuccess) {
+			resetForm();
+			history.push('/')
+		}
+	}, [signUpSuccess]);
+
+	useEffect(() => {
+		if (Array.isArray(signUpError) && signUpError.length > 0) {
+			setErrors(signUpError)
+		}
+	}, [signUpError]);
 
 	//reset form field
 	const resetForm = () => {
 		setEmail("");
 		setConfirmPassword("");
 		setDisplayName("");
-		setFirstname("");
-		setLastname("");
 		setErrors([]);
 		setPassword("");
 	};
@@ -31,31 +47,7 @@ const CreateNewUser = () => {
 	//create user
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-
-		if (password !== confirmPassword) {
-			const newError = [
-				"Password don't match, check your password and try again.",
-			];
-			setErrors(newError);
-			return;
-		}
-
-		try {
-			const { user } = auth
-				.createUserWithEmailAndPassword(email, password)
-				.then(() => {
-					history.push('/')
-				})
-				.catch((err) => {
-					setErrors([err.message]);
-				});
-
-			await handleUserProfile(user, { displayName });
-
-			resetForm();
-		} catch (error) {
-			console.log(error);
-		}
+		dispatch(createNewUser({displayName, email, password, confirmPassword}))
 	};
 	const config = {
 		headline: "REGISTER",

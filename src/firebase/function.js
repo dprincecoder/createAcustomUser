@@ -14,7 +14,7 @@ const auth = firebase.auth(); //authorize users using firebase auth
 
 const provider = new firebase.auth.GoogleAuthProvider(); //let google be our firebase authorization
 
-const signInWithGoogle = () => auth.signInWithPopup(provider);
+
 export const handleUserProfile = async ( userAuth, additionalData ) => {
 	if (!userAuth) return;
 	const { uid } = userAuth;
@@ -33,6 +33,8 @@ export const handleUserProfile = async ( userAuth, additionalData ) => {
 				displayName,
 				email,
 				profilePic,
+				firstname: "",
+				lastname: "",
 				createdDate: timestamp,
 				...additionalData,
 			});
@@ -45,5 +47,5 @@ export const handleUserProfile = async ( userAuth, additionalData ) => {
 
 
 //exports our modules
-export { auth, provider, signInWithGoogle };
+export { auth, provider };
 export default DB;

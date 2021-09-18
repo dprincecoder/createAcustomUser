@@ -11,29 +11,29 @@ import Homepage from './pages/homepage/Homepage';
 import Login from "./pages/login/Login";
 import Register from "./pages/registration/Register";
 import Recovery from "./pages/recovery/Recovery"
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {setCurrentUser} from './redux/user/user.action'
 import Dashboard from './pages/dashboard/Dashboard';
 
 //higherOtherComponent
 import WithAuth from './higherOtherComponent/withAuth'
 
-const App =  (props) => {
-	const {setCurrentUser, currentUser} = props
+const App =  () => {
+	const dispatch = useDispatch()
 
 	useEffect(() =>  {
 		const authListener = auth.onAuthStateChanged(async userAuth => {
 			if (userAuth) {
 				const userRef = await handleUserProfile(userAuth);
 				userRef.onSnapshot(snapshot => {
-					setCurrentUser({
+					dispatch(setCurrentUser({
 						id: snapshot.id,
 						...snapshot.data()
-					})
+					}))
 				})
 			}
 			
-			setCurrentUser(userAuth)
+			dispatch(setCurrentUser(userAuth));
 		})
 		return () => {authListener()}
 	}, [])
@@ -74,12 +74,4 @@ const App =  (props) => {
 	);
 }
 
-const mapStateToProps = ({ user }) => ({
-	currentUser: user.currentUser
-});
-
-const mapDispatchToProps = dispatch => ({
-	setCurrentUser: user => dispatch(setCurrentUser(user))
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default App;
