@@ -4,6 +4,7 @@ import Button from "../forms/button/Button";
 import "./createNewUser.scss";
 import { auth, handleUserProfile } from "../../firebase/function";
 import AuthWrapper from "../authWrapper/AuthWrapper";
+import { useHistory } from "react-router";
 
 const CreateNewUser = () => {
 	const [email, setEmail] = useState("");
@@ -13,6 +14,8 @@ const CreateNewUser = () => {
 	const [displayName, setDisplayName] = useState("");
 	const [firstname, setFirstname] = useState("");
 	const [lastname, setLastname] = useState("");
+
+	const history = useHistory()
 
 	//reset form field
 	const resetForm = () => {
@@ -41,7 +44,7 @@ const CreateNewUser = () => {
 			const { user } = auth
 				.createUserWithEmailAndPassword(email, password)
 				.then(() => {
-					alert("user created");
+					history.push('/')
 				})
 				.catch((err) => {
 					setErrors([err.message]);

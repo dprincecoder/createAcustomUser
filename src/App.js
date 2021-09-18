@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { Switch, Route, Redirect } from "react-router-dom"
+import { Switch, Route} from "react-router-dom"
 import './default.scss';
 import MainLayouts from "./layouts/MainLayouts";
 import HomepageLayout from "./layouts/HomepageLayout";
@@ -11,9 +11,15 @@ import Homepage from './pages/homepage/Homepage';
 import Login from "./pages/login/Login";
 import Register from "./pages/registration/Register";
 import Recovery from "./pages/recovery/Recovery"
+import { connect } from 'react-redux';
+import {setCurrentUser} from './redux/user/user.action'
+import Dashboard from './pages/dashboard/Dashboard';
 
-const App =  () => {
-	const [currentUser, setCurrentUser] = useState();
+//higherOtherComponent
+import WithAuth from './higherOtherComponent/withAuth'
+
+const App =  (props) => {
+	const {setCurrentUser, currentUser} = props
 
 	useEffect(() =>  {
 		const authListener = auth.onAuthStateChanged(async userAuth => {
@@ -27,7 +33,7 @@ const App =  () => {
 				})
 			}
 			
-			setCurrentUser()
+			setCurrentUser(userAuth)
 		})
 		return () => {authListener()}
 	}, [])
@@ -37,36 +43,43 @@ const App =  () => {
 		<div className="App">
 			<Switch>
 				<Route exact path="/">
-					<HomepageLayout currentUser={currentUser}>
+					<HomepageLayout>
 						<Homepage />
 					</HomepageLayout>
 				</Route>
 				<Route exact path="/register">
-					{currentUser ? (
-						<Redirect to="/" />
-					) : (
-						<MainLayouts currentUser={currentUser}>
+						<MainLayouts>
 							<Register />
 						</MainLayouts>
-					)}
 				</Route>
 				<Route exact path="/login">
-					{currentUser ? (
-						<Redirect to="/" />
-					) : (
-						<MainLayouts currentUser={currentUser}>
+						<MainLayouts>
 							<Login />
 						</MainLayouts>
-					)}
 				</Route>
 				<Route exact path="/recovery">
-						<MainLayouts>
-							<Recovery />
-						</MainLayouts>
+					<MainLayouts>
+						<Recovery />
+					</MainLayouts>
+				</Route>
+				<Route exact path="/dashboard">
+					<WithAuth>
+					<MainLayouts>
+						<Dashboard />
+					</MainLayouts>
+					</WithAuth>
 				</Route>
 			</Switch>
 		</div>
 	);
 }
 
-export default App;
+const mapStateToProps = ({ user }) => ({
+	currentUser: user.currentUser
+});
+
+const mapDispatchToProps = dispatch => ({
+	setCurrentUser: user => dispatch(setCurrentUser(user))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

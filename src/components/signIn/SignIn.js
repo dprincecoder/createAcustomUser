@@ -4,13 +4,14 @@ import Button from "../forms/button/Button";
 import FormInput from "../forms/formInput/FormInput";
 import AuthWrapper from "../authWrapper/AuthWrapper";
 import "./signIn.scss";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 const SignIn = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [errors, setErrors] = useState([]);
 
+	const history = useHistory()
 	const resetForm = () => {
 		setEmail("");
 		setPassword("");
@@ -22,7 +23,7 @@ const SignIn = () => {
 			await auth
 				.signInWithEmailAndPassword(email, password)
 				.then(() => {
-					console.log("success");
+					history.puah('/')
 				})
 				.catch((err) => {
 					const newError = [err.message];
@@ -63,6 +64,7 @@ const SignIn = () => {
 						handleChange={(e) => setPassword(e.target.value)}
 					/>
 					<Button type="submit">LOGIN</Button>
+				</form>
 					<div className="socialSign">
 						<div className="row">
 							<Button onClick={signInWithGoogle}>Sign In with Google</Button>
@@ -71,7 +73,6 @@ const SignIn = () => {
 					<p>
 						Forgot Password? <Link to="/recovery">Recover it</Link>
 					</p>
-				</form>
 			</div>
 		</AuthWrapper>
 	);
