@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, {useState, useEffect} from 'react'
 import { Switch, Route, Redirect } from "react-router-dom"
 import './default.scss';
 import MainLayouts from "./layouts/MainLayouts";
@@ -12,79 +12,61 @@ import Login from "./pages/login/Login";
 import Register from "./pages/registration/Register";
 import Recovery from "./pages/recovery/Recovery"
 
-const initialState = {
-	currentUser: null
-}
-class App extends Component {
-	constructor(props) {
-		super();
-		this.state = {
-			...initialState
-		}
-	}
+const App =  () => {
+	const [currentUser, setCurrentUser] = useState();
 
-	authListener = null
-	componentDidMount() {
-		this.authListener = auth.onAuthStateChanged(async userAuth => {
+	useEffect(() =>  {
+		const authListener = auth.onAuthStateChanged(async userAuth => {
 			if (userAuth) {
 				const userRef = await handleUserProfile(userAuth);
 				userRef.onSnapshot(snapshot => {
-					this.setState({
-						currentUser: {
-							id: snapshot.id,
-							...snapshot.data()
-						}
+					setCurrentUser({
+						id: snapshot.id,
+						...snapshot.data()
 					})
 				})
 			}
 			
-			this.setState({
-				...initialState
-			})
+			setCurrentUser()
 		})
-	}
+		return () => {authListener()}
+	}, [])
 
-	componentWillUnmount() {
-		this.authListener();
-	}
-
-	render() {
-		const {currentUser} = this.state
-		return (
-			<div className="App">
-				<Switch>
-					<Route exact path="/">
-						<HomepageLayout currentUser={currentUser}>
-							<Homepage />
-						</HomepageLayout>
-					</Route>
-					<Route exact path="/register">
-						{currentUser ? (
-							<Redirect to="/" />
-						) : (
-							<MainLayouts currentUser={currentUser}>
-								<Register />
-							</MainLayouts>
-						)}
-					</Route>
-					<Route exact path="/login">
-						{currentUser ? (
-							<Redirect to="/" />
-						) : (
-							<MainLayouts currentUser={currentUser}>
-								<Login />
-							</MainLayouts>
-						)}
-					</Route>
-					<Route exact path="/recovery">
-							<MainLayouts>
-								<Recovery />
-							</MainLayouts>
-					</Route>
-				</Switch>
-			</div>
-		);
-	}
+	
+	return (
+		<div className="App">
+			<Switch>
+				<Route exact path="/">
+					<HomepageLayout currentUser={currentUser}>
+						<Homepage />
+					</HomepageLayout>
+				</Route>
+				<Route exact path="/register">
+					{currentUser ? (
+						<Redirect to="/" />
+					) : (
+						<MainLayouts currentUser={currentUser}>
+							<Register />
+						</MainLayouts>
+					)}
+				</Route>
+				<Route exact path="/login">
+					{currentUser ? (
+						<Redirect to="/" />
+					) : (
+						<MainLayouts currentUser={currentUser}>
+							<Login />
+						</MainLayouts>
+					)}
+				</Route>
+				<Route exact path="/recovery">
+						<MainLayouts>
+							<Recovery />
+						</MainLayouts>
+				</Route>
+			</Switch>
+		</div>
+	);
 }
 
 export default App;

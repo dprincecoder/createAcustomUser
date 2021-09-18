@@ -3,7 +3,7 @@ import FormInput from "../forms/formInput/FormInput";
 import Button from "../forms/button/Button";
 import "./createNewUser.scss";
 import { auth, handleUserProfile } from "../../firebase/function";
-import AuthWrapper from '../authWrapper/AuthWrapper'
+import AuthWrapper from "../authWrapper/AuthWrapper";
 
 const CreateNewUser = () => {
 	const [email, setEmail] = useState("");
@@ -20,7 +20,7 @@ const CreateNewUser = () => {
 		setConfirmPassword("");
 		setDisplayName("");
 		setFirstname("");
-		setLastname("")
+		setLastname("");
 		setErrors([]);
 		setPassword("");
 	};
@@ -38,74 +38,66 @@ const CreateNewUser = () => {
 		}
 
 		try {
-			const { user } = auth.createUserWithEmailAndPassword(email, password);
+			const { user } = auth
+				.createUserWithEmailAndPassword(email, password)
+				.then(() => {
+					alert("user created");
+				})
+				.catch((err) => {
+					setErrors([err.message]);
+				});
 
 			await handleUserProfile(user, { displayName });
-            
+
 			resetForm();
-			
 		} catch (error) {
 			console.log(error);
 		}
 	};
 	const config = {
-		headline: "REGISTER"
-	}
+		headline: "REGISTER",
+	};
 	return (
 		<AuthWrapper {...config}>
-				{errors.length > 0 && (
-					<ul>
-						{errors.map((err, i) => (
-							<li key={i}>{err}</li>
-						))}
-					</ul>
-				)}
+			{errors.length > 0 && (
+				<ul>
+					{errors.map((err, i) => (
+						<li key={i}>{err}</li>
+					))}
+				</ul>
+			)}
 
-				<form onSubmit={handleSubmit}>
-					{/* <FormInput
-						type="test"
-						name="firstname"
-						value={firstname}
-						placeholder="Enter firstname"
-						handleChange={(e) => setFirstname(e.target.value)}
-					/>
-					<FormInput
-						type="test"
-						name="email"
-						value={lastname}
-						placeholder="Enter lastname"
-						handleChange={(e) => setLastname(e.target.value)}
-					/> */}
-					<FormInput
-						type="test"
-						name="displayName"
-						value={displayName}
-						placeholder="Enter DisplayName"
-						handlehange={(e) => setDisplayName(e.target.value)}
-					/>
-					<FormInput
-						type="email"
-						name="email"
-						value={email}
-						placeholder="Enter Email"
-						handleChange={(e) => setEmail(e.target.value)}
-					/>
-					<FormInput
-						type="password"
-						name="password"
-						value={password}
-						placeholder="Enter Password"
-						handleChange={(e) => setPassword(e.target.value)}
-					/>
-					<FormInput
-						type="password"
-						name="confirmPassword"
-						value={confirmPassword}
-						placeholder="Confirm Password"
-						handleChange={(e) => setConfirmPassword(e.target.value)}
-					/>
-					<Button type="submit">REGISTER</Button>
-				</form>
+			<form onSubmit={handleSubmit}>
+				<FormInput
+					type="test"
+					name="displayName"
+					value={displayName}
+					placeholder="Enter DisplayName"
+					handleChange={(e) => setDisplayName(e.target.value)}
+				/>
+				<FormInput
+					type="email"
+					name="email"
+					value={email}
+					placeholder="Enter Email"
+					handleChange={(e) => setEmail(e.target.value)}
+				/>
+				<FormInput
+					type="password"
+					name="password"
+					value={password}
+					placeholder="Enter Password"
+					handleChange={(e) => setPassword(e.target.value)}
+				/>
+				<FormInput
+					type="password"
+					name="confirmPassword"
+					value={confirmPassword}
+					placeholder="Confirm Password"
+					handleChange={(e) => setConfirmPassword(e.target.value)}
+				/>
+				<Button type="submit">REGISTER</Button>
+			</form>
 		</AuthWrapper>
 	);
 };
